@@ -161,3 +161,25 @@ final class AIPolicyTests: XCTestCase {
 }
 
 import Crypto
+
+final class InboxTests: XCTestCase {
+    func testShareExtensionInboxIsSealedToTheApp() throws {
+        let tmp = TempDir()
+        let store = try makeStore(tmp)
+        let appKey = Curve25519.KeyAgreement.PrivateKey()
+        let receipt = Data("receipt pdf bytes".utf8)
+        let sealed = try InboxSealer.seal(receipt, metadata: InboxItemMetadata(filename: "receipt.pdf", mimeType: "application/pdf", kind: .document, sourceApp: "Mail"),
+                                          to: appKey.publicKey)
+        XCTAssertNil(sealed.range(of: Data("receipt pdf".utf8)))
+        try sealed.write(to: store.inboxDirectory.appendingPathComponent("1.hinbox"))
+        XCTAssertTrue(try store.pendingInboxItems(privateKey: Curve25519.KeyAgreement.PrivateKey()).isEmpty, "other keys can't open")
+        let items = try store.pendingInboxItems(privateKey: appKey)
+        XCTAssertEqual(items.first?.metadata.sourceApp, "Mail")
+        let furnace = Entity(kindName: "appliance", name: "Furnace")
+        try store.save(furnace)
+        let id = try store.fileInboxItem(items[0], attachTo: furnace.id)
+        XCTAssertEqual(try store.media.media(attachedTo: furnace.id).map(\.id), [id])
+        XCTAssertEqual(try store.history(of: id).first?.provenance.method, .shareSheet)
+        XCTAssertTrue(try store.pendingInboxItems(privateKey: appKey).isEmpty)
+    }
+}

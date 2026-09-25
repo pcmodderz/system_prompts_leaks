@@ -228,6 +228,14 @@ public final class HearthStore: @unchecked Sendable {
         }
     }
 
+    /// Partial update of specific fields (other fields, including ones this app version does
+    /// not know, are untouched).
+    @discardableResult
+    public func update(_ id: String, fields: [String: JSONValue], provenance: Provenance = .manual) throws -> Operation? {
+        guard let env = try envelope(id) else { throw HearthStoreError.recordNotFound(id) }
+        return try write(kind: env.kind, id: id, fields: fields, provenance: provenance, replace: false)
+    }
+
     /// Soft delete: the record disappears from normal views but its history remains.
     public func delete(_ id: String, provenance: Provenance = .manual) throws {
         guard let env = try envelope(id) else { throw HearthStoreError.recordNotFound(id) }
