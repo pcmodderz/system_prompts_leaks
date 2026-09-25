@@ -334,7 +334,7 @@ public enum BackupManager {
       • iPhone/iPad/Mac: Hearth → Settings → Backup → Restore from backup…
       • Any computer:    hearthctl restore <this folder> <new-directory> --recovery-key XXXX-...
 
-    Format (open, documented in docs/BACKUP_FORMAT.md of the Hearth source):
+    Format (open, documented in docs/ARCHITECTURE.md of the Hearth source):
       header.json      scrypt salts and the backup key wrapped by each secret (AES-256-GCM)
       manifest.sealed  list of files with SHA-256 checksums
       keys.sealed      the household's encryption keys
