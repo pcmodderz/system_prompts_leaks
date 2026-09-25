@@ -34,10 +34,10 @@ struct ShowProcedureIntent: AppIntent {
 
     func perform() async throws -> some IntentResult & ProvidesDialog & ShowsSnippetView {
         guard let p = try HearthRuntime.shared.store?.fetch(Procedure.self, id: procedure.id) else {
-            return .result(dialog: "I couldn't find that procedure.", view: Text(""))
+            return .result(dialog: "I couldn't find that procedure.", view: AnyView(Text("")))
         }
         let spoken = p.steps.enumerated().map { "Step \($0.offset + 1). \($0.element)" }.joined(separator: " ")
-        return .result(dialog: "\(p.title). \(spoken)", view: ProcedureSnippet(procedure: p))
+        return .result(dialog: "\(p.title). \(spoken)", view: AnyView(ProcedureSnippet(procedure: p)))
     }
 }
 
@@ -57,7 +57,7 @@ struct WhatsDueIntent: AppIntent {
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let due = (try? HearthRuntime.shared.store?.dueEvents(within: 7 * 86400)) ?? []
         if due.isEmpty { return .result(dialog: "Nothing is due this week.") }
-        return .result(dialog: "\(due.count) due: " + due.map(\.title).joined(separator: ", "))
+        return .result(dialog: "\(due.count) due: \(due.map(\.title).joined(separator: ", "))")
     }
 }
 

@@ -41,6 +41,7 @@ final class AppModel: ObservableObject {
     @Published var vaultUnlocked = false
     @Published var lastSync: SyncReport?
     @Published var lastError: String?
+    @Published var isOnline = true
 
     let connectivity = Connectivity()
     let runtime = HearthRuntime.shared
@@ -48,6 +49,7 @@ final class AppModel: ObservableObject {
 
     init() {
         connectivity.onReconnect = { [weak self] in Task { await self?.reconnected() } }
+        connectivity.onChange = { [weak self] online in self?.isOnline = online }
     }
 
     // MARK: Lifecycle

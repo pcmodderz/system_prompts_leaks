@@ -16,7 +16,7 @@ final class ShareViewController: UIViewController {
             let count = await receive()
             host.rootView = ShareStatusView(state: count > 0 ? .done(count) : .failed)
             try? await Task.sleep(for: .seconds(1.2))
-            extensionContext?.completeRequest(returningItems: nil)
+            extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
         }
     }
 

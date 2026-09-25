@@ -15,6 +15,7 @@ final class Connectivity: ObservableObject {
     @Published private(set) var isOnline = true
     private let monitor = NWPathMonitor()
     var onReconnect: (() -> Void)?
+    var onChange: ((Bool) -> Void)?
 
     init() {
         monitor.pathUpdateHandler = { [weak self] path in
@@ -22,6 +23,7 @@ final class Connectivity: ObservableObject {
                 guard let self else { return }
                 let wasOnline = self.isOnline
                 self.isOnline = path.status == .satisfied
+                if wasOnline != self.isOnline { self.onChange?(self.isOnline) }
                 if !wasOnline && self.isOnline { self.onReconnect?() }
             }
         }
@@ -199,7 +201,7 @@ enum OnDeviceProcessing {
     static func strippingLocation(fromImageAt url: URL) -> Data? {
         guard let src = CGImageSourceCreateWithURL(url as CFURL, nil), let type = CGImageSourceGetType(src) else { return nil }
         let out = NSMutableData()
-        guard let dest = CGImageDestinationCreateWithData(out, type, CGImageSourceGetCount(src), nil) else { return nil }
+        guard let dest = CGImageDestinationCreateWithData(out as CFMutableData, type, CGImageSourceGetCount(src), nil) else { return nil }
         let remove: [CFString: Any] = [kCGImagePropertyGPSDictionary: kCFNull as Any]
         for i in 0..<CGImageSourceGetCount(src) { CGImageDestinationAddImageFromSource(dest, src, i, remove as CFDictionary) }
         return CGImageDestinationFinalize(dest) ? out as Data : nil

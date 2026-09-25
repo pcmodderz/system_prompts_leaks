@@ -1,5 +1,6 @@
 import AVFoundation
 import HearthCore
+import Photos
 import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers

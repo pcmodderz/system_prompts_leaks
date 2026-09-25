@@ -8,7 +8,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             List {
-                if !model.connectivity.isOnline {
+                if !model.isOnline {
                     Label("Offline — everything stored on this device is available. Changes will sync later.", systemImage: "wifi.slash")
                         .font(.callout).foregroundStyle(.secondary)
                 }
@@ -38,7 +38,7 @@ struct HomeView: View {
                         HStack {
                             VStack(alignment: .leading) {
                                 Text(e.title)
-                                if let d = e.dueAt { Text(d, style: .date).font(.caption).foregroundStyle(d < Date() ? .red : .secondary) }
+                                if let d = e.dueAt { Text(d, style: .date).font(.caption).foregroundStyle(d < Date() ? Color.red : Color.secondary) }
                             }
                             Spacer()
                             Button("Done") { var done = e; done.completedAt = Date(); model.save(done) }.buttonStyle(.bordered)
@@ -120,7 +120,7 @@ struct ConflictsView: View {
     var body: some View {
         List(model.conflicts) { c in
             VStack(alignment: .leading, spacing: 8) {
-                Text("\((try? model.store?.envelope(c.recordID))??.title ?? c.recordID) — \(c.field)").font(.headline)
+                Text("\((try? model.store?.envelope(c.recordID))?.title ?? c.recordID) — \(c.field)").font(.headline)
                 Text("Two people changed this at the same time. Both versions are kept in history.").font(.caption).foregroundStyle(.secondary)
                 Button { model.resolve(c, .keepWinner) } label: { Text("Keep: \(Self.show(c.winningValue))") }
                 Button { model.resolve(c, .takeLoser) } label: { Text("Use: \(Self.show(c.losingValue))") }
