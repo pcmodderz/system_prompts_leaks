@@ -1,0 +1,74 @@
+# Generate the Xcode project with XcodeGen:  brew install xcodegen && xcodegen
+name: Hearth
+options:
+  bundleIdPrefix: app.hearth
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""   # set your team ID
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  Hearth:
+    path: ..
+targets:
+  Hearth:
+    type: application
+    platform: iOS
+    supportedDestinations: [iOS, iPadOS]
+    sources: [Hearth]
+    dependencies:
+      - package: Hearth
+        product: HearthCore
+      - target: HearthShare
+    entitlements:
+      path: Hearth/Hearth.entitlements
+      properties:
+        com.apple.security.application-groups: [group.app.hearth]
+        keychain-access-groups: [$(AppIdentifierPrefix)app.hearth.shared]
+    info:
+      path: Hearth/Info.plist
+      properties:
+        CFBundleDisplayName: Hearth
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~iphone: [UIInterfaceOrientationPortrait]
+        UIFileSharingEnabled: false
+        NSCameraUsageDescription: Hearth uses the camera to capture photos, video and document scans of your home. They stay on your devices.
+        NSMicrophoneUsageDescription: Hearth records audio notes and video sound. Recordings stay on your devices.
+        NSPhotoLibraryUsageDescription: Hearth can import photos and videos you choose, preserving their original dates. Your library is never modified.
+        NSFaceIDUsageDescription: Hearth uses Face ID to protect financial, identity and security records.
+        NSLocationWhenInUseUsageDescription: Optional. Hearth can note where household media was captured and find weather for your home. Location stays on your devices.
+        NSSpeechRecognitionUsageDescription: Hearth transcribes audio notes and video on this device.
+        NSLocalNetworkUsageDescription: Hearth can use AI models and storage on your home network.
+        UIBackgroundModes: [fetch]
+        BGTaskSchedulerPermittedIdentifiers: [app.hearth.refresh]
+        ITSAppUsesNonExemptEncryption: false
+  HearthShare:
+    type: app-extension
+    platform: iOS
+    sources: [HearthShare]
+    dependencies:
+      - package: Hearth
+        product: HearthCore
+    entitlements:
+      path: HearthShare/HearthShare.entitlements
+      properties:
+        com.apple.security.application-groups: [group.app.hearth]
+    info:
+      path: HearthShare/Info.plist
+      properties:
+        CFBundleDisplayName: Hearth
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsImageWithMaxCount: 20
+              NSExtensionActivationSupportsMovieWithMaxCount: 5
+              NSExtensionActivationSupportsFileWithMaxCount: 20
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsText: true
